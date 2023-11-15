@@ -2,14 +2,24 @@ import React, { useState, useEffect } from "react";
 import dicon from "./Logos/3.png"
 import plus from "./Logos/plus.png"
 import dot from "./Logos/dot.jpg"
-import "./App.css"; // Import your CSS file for styling
+import low from "./Logos/lowP.jpg"
+import nop from "./Logos/no_priority.jpg"
+import medium from "./Logos/mediumP.jpg"
+import high from "./Logos/highP.jpg"
+import urgent from "./Logos/urgent.jpg"
+import todo from "./Logos/todo.png";
+import inprog from "./Logos/inp.jpg"
+import backlog from "./Logos/backlog.jpg"
+import done from "./Logos/done.png"
+import user from "./Logos/mine.jpg"
+import "./App.css";
 
 const App = () => {
   const [displayOptions, setDisplayOptions] = useState(false);
-  const [groupingOption, setGroupingOption] = useState("byStatus");
-  const [orderingOption, setOrderingOption] = useState("byPriority");
+  const [groupingOption, setGroupingOption] = useState("status");
+  const [orderingOption, setOrderingOption] = useState("priority");
   const [data, setData] = useState({ tickets: [], users: [] });
-  //  const [selectedTickets, setSelectedTickets] = useState({});
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,25 +42,25 @@ const App = () => {
   }, []);
 
   
-    useEffect(() => {
-      
-      const handleOutsideClick = (e) => {
-        if (
-          displayOptions &&
-          !e.target.closest(".dropdown") &&
-          e.target.className !== "dropdown-button" &&
-          e.target.className !== "box-text"
-        ) {
-          setDisplayOptions(false);
-        }
-      };
+  useEffect(() => {
+  
+    const handleOutsideClick = (e) => {
+      if (
+        displayOptions &&
+        !e.target.closest(".dropdown") &&
+        e.target.className !== "dropdown-button" &&
+        e.target.className !== "box-text"
+      ) {
+        setDisplayOptions(false);
+      }
+    };
 
-      document.addEventListener("click", handleOutsideClick);
+    document.addEventListener("click", handleOutsideClick);
 
-      return () => {
-        document.removeEventListener("click", handleOutsideClick);
-      };
-    }, [displayOptions]);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, [displayOptions]);
 
 
    const getPriorityName = (priorityValue) => {
@@ -68,7 +78,19 @@ const App = () => {
        default:
          return "";
      }
-   };
+  };
+
+  const icon = {};
+  icon["In progress"] = inprog;
+  icon["Done"] = done;
+  icon["Backlog"] = backlog;
+  icon["Todo"] = todo;
+  icon["Urgent"] = urgent;
+  icon["High"] = high;
+  icon["Medium"] = medium;
+  icon["Low"] = low;
+  icon["No priority"] = nop;
+
 
   const groupTickets = () => {
     switch (groupingOption) {
@@ -120,7 +142,7 @@ const App = () => {
     return sortedTickets;
   };
 
-  // const getCircleFillColor = (isSelected) => (isSelected ? "white" : "blue");
+  
 
   const renderGroupedTickets = () => {
     const groupedTickets = groupTickets();
@@ -129,21 +151,57 @@ const App = () => {
       console.log("No data to display");
       return <p>No data to display</p>;
     }
+    if (icon[Object.keys(groupedTickets).key] == null) icon[Object.keys(groupedTickets).key] = user;
 
     return (
       <div className="result-container">
         {Object.keys(groupedTickets).map((key) => (
           <div key={key} className="result-column">
             <div className="status-box">
-              <h3>
+              {icon[key] != null ? (
+                <img
+                  style={{
+                    height: "10px",
+                    marginRight: "1rem",
+                    cursor: "pointer",
+                    width: "0.5cm",
+                    borderRadius: "50%",
+                  }}
+                  src={icon[key]}
+                  alt=""
+                />
+              ) : (
+                <img
+                  style={{
+                    height: "10px",
+                    marginRight: "1rem",
+                    cursor: "pointer",
+                    borderRadius: "50%",
+                  }}
+                  src={user}
+                  alt=""
+                />
+              )}
+              <h3
+                style={{ margin: "0", display: "flex", alignItems: "center" }}
+              >
                 {key} ({groupedTickets[key].length})
               </h3>
               <img
-                style={{ height: "25px", marginRight: "1rem" ,cursor:"pointer"}}
+                style={{
+                  height: "25px",
+                  marginLeft: "0.5rem",
+                  marginRight: "0.5rem",
+                  cursor: "pointer",
+                }}
                 src={plus}
                 alt=""
               />
-              <img style={{ height: "5px" ,cursor:"pointer"}} src={dot} alt="" />
+              <img
+                style={{ height: "5px", cursor: "pointer" }}
+                src={dot}
+                alt=""
+              />
             </div>
             <ul>
               {sortTickets(groupedTickets[key]).map((item) => (
@@ -151,7 +209,6 @@ const App = () => {
                   <p className="id">{item.id}</p>
                   <p className="title">{item.title}</p>
                   <div className="tag-container">
-                    {/* <div className="dots">...</div> */}
                     <p className="tag">
                       <span class="dot"></span>
                       {item.tag.join(", ")}
@@ -165,13 +222,6 @@ const App = () => {
       </div>
     );
   };
-
-   
-
-  if (!data.tickets.length) {
-    console.log("No ticket data available");
-    return <p>No ticket data available</p>;
-  }
 
   return (
     <div className="app-container">
